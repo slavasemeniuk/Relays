@@ -64,7 +64,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
-        frame.setLocation((int) dimension.getWidth(), (int) dimension.getHeight());
+        frame.setLocation((int) dimension.getWidth() - frame.getWidth(), (int) dimension.getHeight() - frame.getHeight());
         frame.setAlwaysOnTop(true);
         frame.setResizable(false);
         frame.setVisible(true);
@@ -76,7 +76,6 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         allButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                send
             }
         });
         connect();
@@ -103,7 +102,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
     private void sendActionForRelay(int group, boolean state, int number) {
         Command command = new Command(Commands.TURN);
         command.addArgument(new Argument((byte) 'g', group));
-        command.addArgument(new Argument((byte) 's', (state) ? 1 : 0));
+        command.addArgument(new Argument((byte) 's', (state) ? 0 : 1));
         command.addArgument(new Argument((byte) 'n', number));
         if (connection != null) connection.send(command.serialize());
     }
@@ -137,13 +136,9 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
 
     private void connect() {
         if (connection != null) connection.close();
-
-        for (SerialPort port : SerialConnection.getAvailableSerialPorts()) {
-            connection = new SerialConnection(port, 9600);
-            if (connection.isOpen()) break;
-            else connection.close();
-        }
-        if (!connection.isOpen()) {
+        SerialPort port = SerialPort.getCommPorts()[0];
+        connection = new SerialConnection(port, 9600);
+        if (!connection.isOpen() || connection == null) {
             JOptionPane.showMessageDialog(null, "Не вдалось встановити зв'язок");
             return;
         }
@@ -161,7 +156,9 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
 
     @Override
     public void onReceive(byte[] data) {
+        System.out.print(data);
         for (Command command : commandParser.parse(data)) {
+            System.out.print(command);
             try {
                 boolean state = command.getArgument(Commands.STATE).getBoolean();
                 switch (command.getKey()) {
@@ -172,6 +169,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
                         turnAll(state);
                 }
             } catch (Exception e) {
+                System.out.print(e);
                 e.printStackTrace();
             }
         }
