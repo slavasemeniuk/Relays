@@ -11,8 +11,6 @@ Parser::~Parser() {
 }
 
 List<Command*>* Parser::parse(byte* data, uint8_t dataLength) {
-  // printf_P(PSTR("Parser::parse: data @%d, len = %d | buffer @%d, len = %d\n"), data, dataLength, buffer, bufferLength);
-  // printf_P(PSTR("freemem = %d\n"), freeMemory());
   if (bufferLength > MAX_BUFFER_LENGTH) trim(bufferLength / 2);
   if (bufferLength == 0) {
     int16_t start = searchStart(data, dataLength, 0);
@@ -45,7 +43,6 @@ List<Command*>* Parser::parse(byte* data, uint8_t dataLength) {
  * @param from search from this position to find new command start, if not find delete all buffer
  */
 void Parser::trim(uint16_t from) {
-  // printf_P(PSTR("Parser::trim(%d) freeMem = %d\n"), from, freeMemory());
   int16_t start = searchStart(buffer, bufferLength, from);
   if (start == NOT_FIND) {//TODO:
     bufferLength = 0;

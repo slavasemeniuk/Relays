@@ -149,7 +149,7 @@ void ArrayList<T>::grow(uint16_t minCapacity) {
 template< typename T >
 void ArrayList<T>::print() {
   Serial.println(F("-------------------"));
-  Serial.print(F("RAM: ")); Serial.println(freeMemory());
+  // Serial.print(F("RAM: ")); Serial.println(freeMemory());
   Serial.print(F("Capacity: ")); Serial.print(capacity);
   Serial.print(F(" | size = ")); Serial.println(valuesSize);
   for (uint16_t i = 0; i < valuesSize; i++) {

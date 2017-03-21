@@ -9,7 +9,7 @@ public class Commands {
     public static final byte TURN_ALL = 'a';
 
     //Arguments
-    public static final byte STATE = 's';
+    public static final byte STATE = 'o';
     public static final byte GROUP = 'g';
     public static final byte NUMBER = 'n';
 }

@@ -76,6 +76,24 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         allButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                boolean state = true;
+                for (JButton button: mainButtons) {
+                    if (button.isSelected()) {
+                        state = false;
+                        break;
+                    }
+                }
+                Command command = new Command(Commands.TURN_ALL);
+                command.addArgument(new Argument((byte) 'o', state));
+                if (connection != null) connection.send(command.serialize());
+            }
+        });
+        offButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                Command command = new Command(Commands.TURN_ALL);
+                command.addArgument(new Argument((byte) 'o', false));
+                if (connection != null) connection.send(command.serialize());
             }
         });
         connect();
@@ -102,7 +120,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
     private void sendActionForRelay(int group, boolean state, int number) {
         Command command = new Command(Commands.TURN);
         command.addArgument(new Argument((byte) 'g', group));
-        command.addArgument(new Argument((byte) 's', (state) ? 0 : 1));
+        command.addArgument(new Argument((byte) 'o', state));
         command.addArgument(new Argument((byte) 'n', number));
         if (connection != null) connection.send(command.serialize());
     }
@@ -119,13 +137,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         }
     }
 
-    private void turnAll(Boolean state) {
-        for (JButton button : mainButtons) {
-            button.setSelected(state);
-        };
-    }
-
-    private void turn(int group, boolean state, int number) {
+    private void turnButton(int group, boolean state, int number) {
         String buttonText = state ? "З" : "Д";
         if (group == 1) buttonText = "В";
         ArrayList<JButton> buttonList = (group == 1 ? secondaryButtons : mainButtons);
@@ -136,7 +148,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
 
     private void connect() {
         if (connection != null) connection.close();
-        SerialPort port = SerialPort.getCommPorts()[0];
+        SerialPort port = SerialPort.getCommPorts()[2];
         connection = new SerialConnection(port, 9600);
         if (!connection.isOpen() || connection == null) {
             JOptionPane.showMessageDialog(null, "Не вдалось встановити зв'язок");
@@ -156,17 +168,15 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
 
     @Override
     public void onReceive(byte[] data) {
-        System.out.print(data);
         for (Command command : commandParser.parse(data)) {
-            System.out.print(command);
             try {
-                boolean state = command.getArgument(Commands.STATE).getBoolean();
                 switch (command.getKey()) {
                     case Commands.TURN:
+                        boolean state = command.getArgument(Commands.STATE).getBoolean();
                         int number = command.getArgument(Commands.NUMBER).getShort();
                         int group = command.getArgument(Commands.GROUP).getShort();
-                    case Commands.TURN_ALL:
-                        turnAll(state);
+                        turnButton(group, state, number);
+
                 }
             } catch (Exception e) {
                 System.out.print(e);
