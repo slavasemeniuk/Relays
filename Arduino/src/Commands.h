@@ -1,5 +1,5 @@
 #define TURN 't'
-#define TURNALL 'a'
+#define GET_STATES 'a'
 
 #define STATE 'o'
 #define GROUP 'g'

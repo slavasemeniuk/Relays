@@ -6,7 +6,7 @@ package command;
 public class Commands {
     //Commands
     public static final byte TURN = 't';
-    public static final byte TURN_ALL = 'a';
+    public static final byte GET_STATES = 'a';
 
     //Arguments
     public static final byte STATE = 'o';

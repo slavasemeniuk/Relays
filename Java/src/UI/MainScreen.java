@@ -10,7 +10,6 @@ import com.fazecast.jSerialComm.SerialPort;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import command.*;
 import connection.*;
 
@@ -21,7 +20,6 @@ import static connection.SerialConnection.*;
  * Created by slava_semeniuk on 3/17/17.
  */
 public class MainScreen implements IOnSendListener, IOnReceiveListener {
-    private JButton allButton;
     private JPanel mainPanel;
     private JButton secondMainRelayButton;
     private JButton thirdMainRelayButton;
@@ -38,9 +36,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
     private JButton seventhRelayButton;
     private JButton eightRelayButton;
     private JButton eightMainRelayButton;
-    private JButton offButton;
     private JButton fourthMainRelayButton;
-    private Integer indexOfSelectedSecondaryButton;
 
     private Connection connection;
     private Parser commandParser = new Parser();
@@ -68,35 +64,23 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         frame.setAlwaysOnTop(true);
         frame.setResizable(false);
         frame.setVisible(true);
+        frame.setTitle("VidManager");
     }
 
     public MainScreen() {
-        for (JButton button : mainButtons) button.addActionListener(mainButtonActionListener);
-        for (JButton button : secondaryButtons) button.addActionListener(secondaryActionListener);
-        allButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean state = true;
-                for (JButton button: mainButtons) {
-                    if (button.isSelected()) {
-                        state = false;
-                        break;
-                    }
-                }
-                Command command = new Command(Commands.TURN_ALL);
-                command.addArgument(new Argument((byte) 'o', state));
-                if (connection != null) connection.send(command.serialize());
-            }
-        });
-        offButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                Command command = new Command(Commands.TURN_ALL);
-                command.addArgument(new Argument((byte) 'o', false));
-                if (connection != null) connection.send(command.serialize());
-            }
-        });
+        for (JButton button : secondaryButtons) {
+            button.addActionListener(secondaryActionListener);
+            button.setBackground(Color.decode("#3797d6"));
+            button.setForeground(Color.black);
+        }
+        for (JButton button : mainButtons) {
+            button.addActionListener(mainButtonActionListener);
+            button.setBackground(Color.decode("#3797d6"));
+            button.setForeground(Color.black);
+        };
         connect();
+        sendActionGetStates();
+
     };
 
     private ActionListener mainButtonActionListener = new ActionListener() {
@@ -117,26 +101,6 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         }
     };
 
-    private void sendActionForRelay(int group, boolean state, int number) {
-        Command command = new Command(Commands.TURN);
-        command.addArgument(new Argument((byte) 'g', group));
-        command.addArgument(new Argument((byte) 'o', state));
-        command.addArgument(new Argument((byte) 'n', number));
-        if (connection != null) connection.send(command.serialize());
-    }
-
-
-    private void sendActionForAllRelays(Boolean state) {
-        for (int index = 0; index < mainButtons.size(); index++) {
-            JButton mainButton = mainButtons.get(index);
-            mainButton.setSelected(state);
-            mainButton.setText(state ? "З" : "Д");
-            JButton secondaryButton = secondaryButtons.get(index);
-            secondaryButton.setEnabled(state);
-            if (!state) secondaryButton.setSelected(false);
-        }
-    }
-
     private void turnButton(int group, boolean state, int number) {
         String buttonText = state ? "З" : "Д";
         if (group == 1) buttonText = "В";
@@ -144,22 +108,37 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         buttonList.get(number).setSelected(state);
         buttonList.get(number).setText(buttonText);
         if (group == 0) secondaryButtons.get(number).setEnabled(state);
+        if (group == 0) {
+            buttonList.get(number).setBackground(state ? Color.decode("#e1e1e1") : Color.decode("#3797d6"));
+            buttonList.get(number).setForeground(state ? Color.decode("#000ff") : Color.black);
+        } else {
+            secondaryButtons.get(number).setBackground(state ? Color.decode("#2ba834") : Color.decode("#3797d6"));
+            secondaryButtons.get(number).setForeground(state ? Color.white : Color.black);
+        }
     }
 
     private void connect() {
         if (connection != null) connection.close();
-        SerialPort port = SerialPort.getCommPorts()[2];
-        connection = new SerialConnection(port, 9600);
-        if (!connection.isOpen() || connection == null) {
-            JOptionPane.showMessageDialog(null, "Не вдалось встановити зв'язок");
+        SerialPort[] availablePorts = SerialPort.getCommPorts();
+        SerialPort selectedPort = null;
+
+        selectedPort = SerialPort.getCommPort("COM17");
+
+        if (selectedPort == null) {
+            JOptionPane.showMessageDialog(null, "Не знайдено COM17");
             return;
         }
-
+        connection = new SerialConnection(selectedPort, 9600);
+        if (connection == null || !connection.isOpen()) {
+            JOptionPane.showMessageDialog(null, "Не вдалось підключитись да COM17");
+            return;
+        }
         connection.addOnSendListener(this);
         connection.addOnReceiveListener(this);
     }
 
-    protected void disconnect() {
+
+    private void disconnect() {
         if (connection != null) connection.close();
     }
 
@@ -176,12 +155,24 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
                         int number = command.getArgument(Commands.NUMBER).getShort();
                         int group = command.getArgument(Commands.GROUP).getShort();
                         turnButton(group, state, number);
-
                 }
             } catch (Exception e) {
                 System.out.print(e);
                 e.printStackTrace();
             }
         }
+    }
+
+    private void sendActionForRelay(int group, boolean state, int number) {
+        Command command = new Command(Commands.TURN);
+        command.addArgument(new Argument((byte) 'g', group));
+        command.addArgument(new Argument((byte) 'o', state));
+        command.addArgument(new Argument((byte) 'n', number));
+        if (connection != null) connection.send(command.serialize());
+    }
+
+    private void sendActionGetStates() {
+        Command command = new Command(Commands.GET_STATES);
+        if (connection != null) connection.send(command.serialize());
     }
 }
