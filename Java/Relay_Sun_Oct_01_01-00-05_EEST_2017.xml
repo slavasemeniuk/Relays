@@ -32,13 +32,13 @@
     <exclude name="**/vssver2.scc/**"/>
   </patternset>
   <patternset id="library.patterns">
-    <include name="*.egg"/>
-    <include name="*.jar"/>
-    <include name="*.ear"/>
-    <include name="*.swc"/>
     <include name="*.war"/>
-    <include name="*.ane"/>
+    <include name="*.swc"/>
     <include name="*.zip"/>
+    <include name="*.ear"/>
+    <include name="*.egg"/>
+    <include name="*.ane"/>
+    <include name="*.jar"/>
   </patternset>
   <patternset id="compiler.resources">
     <exclude name="**/?*.java"/>
@@ -95,8 +95,8 @@
   
   <!-- Project Libraries -->
   
-  <path id="library.jserialcomm-1.3.10.classpath">
-    <pathelement location="${basedir}/src/jSerialComm-1.3.10.jar"/>
+  <path id="library.jserialcomm-1.3.10-javadoc.classpath">
+    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
   </path>
   <!-- Register Custom Compiler Taskdefs -->
   <property name="javac2.home" value="${idea.home}/lib"/>
@@ -119,7 +119,7 @@
     <!-- Perform any build initialization in this target -->
   </target>
   
-  <target name="clean" depends="clean.module.relays" description="cleanup all"/>
+  <target name="clean" depends="clean.module.relays, clean.artifact.relays:jar" description="cleanup all"/>
   
   <target name="build.modules" depends="init, clean, compile.module.relays" description="build all modules"/>
   
@@ -127,24 +127,55 @@
     <property name="artifacts.temp.dir" value="${basedir}/__artifacts_temp"/>
     <property name="artifact.output.relays:jar" value="${basedir}/out/artifacts/Relays_jar"/>
     <mkdir dir="${artifacts.temp.dir}"/>
-    <property name="temp.jar.path.Relays.jar" value="${artifacts.temp.dir}/Relays.jar"/>
+    <property name="artifact.temp.output." value="${artifacts.temp.dir}/"/>
+    <taskdef resource="com/sun/javafx/tools/ant/antlib.xml" uri="javafx:com.sun.javafx.tools.ant" classpath="${jdk.home.1.8}/lib/ant-javafx.jar"/>
   </target>
   
-  <target name="artifact.relays:jar" depends="init.artifacts, compile.module.relays" description="Build &#39;Relays:jar&#39; artifact">
-    <property name="artifact.temp.output.relays:jar" value="${artifacts.temp.dir}/Relays_jar"/>
-    <mkdir dir="${artifact.temp.output.relays:jar}"/>
-    <jar destfile="${temp.jar.path.Relays.jar}" duplicate="preserve" filesetmanifest="mergewithoutmain">
-      <zipfileset dir="${relays.output.dir}"/>
-      <zipfileset file="${basedir}/src/jSerialComm-1.3.10.jar"/>
-    </jar>
-    <copy file="${temp.jar.path.Relays.jar}" tofile="${artifact.temp.output.relays:jar}/Relays.jar"/>
+  <target name="clean.artifact.relays:jar" description="clean Relays:jar artifact output">
+    <delete dir="${artifact.output.relays:jar}"/>
+  </target>
+  
+  <target name="artifact.relays:jar" depends="init.artifacts, compile.module.relays" description="Build &#39;Relays:jar&#39; artifact" xmlns:fx="javafx:com.sun.javafx.tools.ant">
+    <mkdir dir="${artifact.output.relays:jar}"/>
+    <mkdir dir="${artifact.temp.output.}/META-INF"/>
+    <copy file="${basedir}/../../13234/META-INF/MANIFEST.MF" tofile="${artifact.temp.output.}/META-INF/MANIFEST.MF"/>
+    <copy todir="${artifact.temp.output.}">
+      <fileset dir="${relays.output.dir}"/>
+    </copy>
+    <unzip src="${basedir}/lib/jSerialComm-1.3.10.jar" dest="${artifact.temp.output.}"/>
+    <fx:fileset id="all_but_" dir="${artifact.temp.output.}" includes="**/*.jar">
+      <exclude name=""/>
+    </fx:fileset>
+    <fx:fileset id="all_" dir="${artifact.temp.output.}" includes="**/*.jar"/>
+    <fx:application id="_id" name="Relays:jar" mainClass="UI.MainScreen"/>
+    <fx:jar destfile="${artifact.temp.output.}/">
+      <fx:application refid="_id"/>
+      <fileset dir="${artifact.temp.output.}" excludes="**/*.jar"/>
+      <fx:resources>
+        <fx:fileset refid="all_but_"/>
+      </fx:resources>
+      <manifest>
+        <attribute name="Implementation-Title" value="Клапан"/>
+        <attribute name="Implementation-Version" value=""/>
+        <attribute name="Implementation-Vendor" value=""/>
+      </manifest>
+    </fx:jar>
+    <fx:deploy width="600" height="400" updatemode="background" outdir="${artifact.temp.output.}/deploy" outfile="">
+      <fx:application refid="_id"/>
+      <fx:info title="Клапан"/>
+      <fx:resources>
+        <fx:fileset refid="all_"/>
+      </fx:resources>
+    </fx:deploy>
+    <copy todir="${artifact.output.relays:jar}">
+      <fileset dir="${artifact.temp.output.}/deploy"/>
+    </copy>
+    <delete includeemptydirs="true">
+      <fileset dir="${artifact.temp.output.}"/>
+    </delete>
   </target>
   
   <target name="build.all.artifacts" depends="artifact.relays:jar" description="Build all artifacts">
-    <mkdir dir="${artifact.output.relays:jar}"/>
-    <copy todir="${artifact.output.relays:jar}">
-      <fileset dir="${artifact.temp.output.relays:jar}"/>
-    </copy>
     
     <!-- Delete temporary files -->
     <delete dir="${artifacts.temp.dir}"/>

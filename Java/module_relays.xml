@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_relays" default="compile.module.relays">
+  <dirname property="module.relays.basedir" file="${ant.file.module_relays}"/>
+  
+  <property name="module.jdk.home.relays" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.relays" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.relays" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.relays" value="-encoding UTF-8 -source 1.8 -target 1.8 ${compiler.args}"/>
+  
+  <property name="relays.output.dir" value="${module.relays.basedir}/out/production/Relays"/>
+  <property name="relays.testoutput.dir" value="${module.relays.basedir}/out/test/Relays"/>
+  
+  <path id="relays.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="relays.module.production.classpath">
+    <path refid="${module.jdk.classpath.relays}"/>
+    <pathelement location="${basedir}/src/modules/command"/>
+    <pathelement location="${basedir}/src/modules/connection"/>
+    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
+    <path refid="library.jserialcomm-1.3.10.classpath"/>
+  </path>
+  
+  <path id="relays.runtime.production.module.classpath">
+    <pathelement location="${relays.output.dir}"/>
+    <pathelement location="${basedir}/src/modules/command"/>
+    <pathelement location="${basedir}/src/modules/connection"/>
+    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
+    <path refid="library.jserialcomm-1.3.10.classpath"/>
+  </path>
+  
+  <path id="relays.module.classpath">
+    <path refid="${module.jdk.classpath.relays}"/>
+    <pathelement location="${relays.output.dir}"/>
+    <pathelement location="${basedir}/src/modules/command"/>
+    <pathelement location="${basedir}/src/modules/connection"/>
+    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
+    <path refid="library.jserialcomm-1.3.10.classpath"/>
+  </path>
+  
+  <path id="relays.runtime.module.classpath">
+    <pathelement location="${relays.testoutput.dir}"/>
+    <pathelement location="${relays.output.dir}"/>
+    <pathelement location="${basedir}/src/modules/command"/>
+    <pathelement location="${basedir}/src/modules/connection"/>
+    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
+    <path refid="library.jserialcomm-1.3.10.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.relays">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.relays">
+    <patternset refid="excluded.from.module.relays"/>
+  </patternset>
+  
+  <path id="relays.module.sourcepath">
+    <dirset dir="${module.relays.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.relays" depends="compile.module.relays.production,compile.module.relays.tests" description="Compile module Relays"/>
+  
+  <target name="compile.module.relays.production" depends="register.custom.compilers" description="Compile module Relays; production classes">
+    <mkdir dir="${relays.output.dir}"/>
+    <javac2 destdir="${relays.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.relays}/javac">
+      <compilerarg line="${compiler.args.relays}"/>
+      <bootclasspath refid="relays.module.bootclasspath"/>
+      <classpath refid="relays.module.production.classpath"/>
+      <src refid="relays.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.relays"/>
+    </javac2>
+    
+    <copy todir="${relays.output.dir}">
+      <fileset dir="${module.relays.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.relays.tests" depends="register.custom.compilers,compile.module.relays.production" description="compile module Relays; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.relays" description="cleanup module">
+    <delete dir="${relays.output.dir}"/>
+    <delete dir="${relays.testoutput.dir}"/>
+  </target>
+</project>

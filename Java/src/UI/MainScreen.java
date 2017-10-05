@@ -6,9 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import com.fazecast.jSerialComm.SerialPort;
-
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import command.*;
 import connection.*;
@@ -27,16 +28,11 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
     private JButton fifthMainRelayButton;
     private JButton seventhMainRelayButton;
     private JButton sixthMainRelayButton;
-    private JButton firstRelayButton;
-    private JButton secondRelayButton;
-    private JButton thirdRelayButton;
-    private JButton fourthRelayButton;
-    private JButton fifthRelayButton;
-    private JButton sixthRelayButton;
-    private JButton seventhRelayButton;
-    private JButton eightRelayButton;
     private JButton eightMainRelayButton;
     private JButton fourthMainRelayButton;
+
+    private JButton firstRelayButton;
+    private JButton secondRelayButton;
 
     private Connection connection;
     private Parser commandParser = new Parser();
@@ -48,10 +44,7 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
             seventhMainRelayButton, eightMainRelayButton));
 
     private ArrayList<JButton> secondaryButtons = new ArrayList<JButton>(Arrays.asList(
-            firstRelayButton, secondRelayButton,
-            thirdRelayButton, fourthRelayButton,
-            fifthRelayButton, sixthRelayButton,
-            seventhRelayButton, eightRelayButton));
+            firstRelayButton, secondRelayButton));
 
 
     public static void main(String[] args) {
@@ -68,8 +61,9 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
     }
 
     public MainScreen() {
+        firstRelayButton.addActionListener(offActionListener);
+        secondRelayButton.addActionListener(resetActionListener);
         for (JButton button : secondaryButtons) {
-            button.addActionListener(secondaryActionListener);
             button.setBackground(Color.decode("#3797d6"));
             button.setForeground(Color.black);
         }
@@ -92,29 +86,45 @@ public class MainScreen implements IOnSendListener, IOnReceiveListener {
         }
     };
 
-    private ActionListener secondaryActionListener = new ActionListener() {
+    private ActionListener offActionListener = new ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            JButton button = (JButton) e.getSource();
-            int index = secondaryButtons.indexOf(button);
-            boolean state = !button.isSelected();
-            sendActionForRelay(1,state,index);
+            boolean state = !firstRelayButton.isSelected();
+            sendActionForRelay(1,state,0);
+        }
+    };
+
+    private ActionListener resetActionListener = new ActionListener() {
+        public void actionPerformed(ActionEvent e) {
+            if (secondRelayButton.isSelected()) {
+                return;
+            }
+            sendActionForRelay(1,true,1);
+            new Timer().schedule(
+                    new TimerTask() {
+                        @Override
+                        public void run() {
+                            sendActionForRelay(1,false,1);
+                        }
+                    }, 2000);
         }
     };
 
     private void turnButton(int group, boolean state, int number) {
-        String buttonText = state ? "З" : "Д";
-        if (group == 1) buttonText = "В";
-        ArrayList<JButton> buttonList = (group == 1 ? secondaryButtons : mainButtons);
-        buttonList.get(number).setSelected(state);
-        buttonList.get(number).setText(buttonText);
-        if (group == 0) secondaryButtons.get(number).setEnabled(state);
         if (group == 0) {
-            buttonList.get(number).setBackground(state ? Color.decode("#e1e1e1") : Color.decode("#3797d6"));
-            buttonList.get(number).setForeground(state ? Color.decode("#000ff") : Color.black);
-        } else {
-            secondaryButtons.get(number).setBackground(state ? Color.decode("#2ba834") : Color.decode("#3797d6"));
-            secondaryButtons.get(number).setForeground(state ? Color.white : Color.black);
+            String buttonText = state ? "З" : "Д";
+            mainButtons.get(number).setSelected(state);
+            mainButtons.get(number).setText(buttonText);
+            mainButtons.get(number).setBackground(state ? Color.decode("#e1e1e1") : Color.decode("#3797d6"));
+            mainButtons.get(number).setForeground(state ? Color.decode("#000ff") : Color.black);
+            return;
         }
+
+        if (number == 0) {
+            firstRelayButton.setText(state ? "On" : "Off");
+        }
+        secondaryButtons.get(number).setSelected(state);
+        secondaryButtons.get(number).setBackground(state ? Color.decode("#2ba834") : Color.decode("#3797d6"));
+        secondaryButtons.get(number).setForeground(state ? Color.white : Color.black);
     }
 
     private void connect() {

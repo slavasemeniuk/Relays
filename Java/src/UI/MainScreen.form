@@ -126,7 +126,7 @@
           <enabled value="false"/>
           <font name="SansSerif" size="16"/>
           <opaque value="true"/>
-          <text value="В"/>
+          <text value="Off"/>
         </properties>
       </component>
       <component id="2825a" class="javax.swing.JButton" binding="secondRelayButton">
@@ -139,99 +139,9 @@
         </constraints>
         <properties>
           <enabled value="false"/>
-          <font name="SansSerif" size="16"/>
+          <font name="SansSerif" size="11"/>
           <opaque value="true"/>
-          <text value="В"/>
-        </properties>
-      </component>
-      <component id="2a55f" class="javax.swing.JButton" binding="thirdRelayButton">
-        <constraints>
-          <grid row="2" column="5" row-span="1" col-span="1" vsize-policy="2" hsize-policy="2" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <minimum-size width="60" height="30"/>
-            <preferred-size width="60" height="30"/>
-            <maximum-size width="60" height="30"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <font name="SansSerif" size="16"/>
-          <opaque value="true"/>
-          <text value="В"/>
-        </properties>
-      </component>
-      <component id="bac74" class="javax.swing.JButton" binding="fourthRelayButton">
-        <constraints>
-          <grid row="3" column="5" row-span="1" col-span="1" vsize-policy="2" hsize-policy="2" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <minimum-size width="60" height="30"/>
-            <preferred-size width="60" height="30"/>
-            <maximum-size width="60" height="30"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <font name="SansSerif" size="16"/>
-          <opaque value="true"/>
-          <text value="В"/>
-        </properties>
-      </component>
-      <component id="d9542" class="javax.swing.JButton" binding="fifthRelayButton">
-        <constraints>
-          <grid row="4" column="5" row-span="1" col-span="1" vsize-policy="2" hsize-policy="2" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <minimum-size width="60" height="30"/>
-            <preferred-size width="60" height="30"/>
-            <maximum-size width="60" height="30"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <font name="SansSerif" size="16"/>
-          <opaque value="true"/>
-          <text value="В"/>
-        </properties>
-      </component>
-      <component id="bdb62" class="javax.swing.JButton" binding="sixthRelayButton">
-        <constraints>
-          <grid row="5" column="5" row-span="1" col-span="1" vsize-policy="2" hsize-policy="2" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <minimum-size width="60" height="30"/>
-            <preferred-size width="60" height="30"/>
-            <maximum-size width="60" height="30"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <font name="SansSerif" size="16"/>
-          <opaque value="true"/>
-          <text value="В"/>
-        </properties>
-      </component>
-      <component id="d7672" class="javax.swing.JButton" binding="seventhRelayButton">
-        <constraints>
-          <grid row="6" column="5" row-span="1" col-span="1" vsize-policy="2" hsize-policy="2" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <minimum-size width="60" height="30"/>
-            <preferred-size width="60" height="30"/>
-            <maximum-size width="60" height="30"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <font name="SansSerif" size="16"/>
-          <opaque value="true"/>
-          <text value="В"/>
-        </properties>
-      </component>
-      <component id="adb0e" class="javax.swing.JButton" binding="eightRelayButton">
-        <constraints>
-          <grid row="7" column="5" row-span="1" col-span="1" vsize-policy="2" hsize-policy="2" anchor="0" fill="0" indent="0" use-parent-layout="false">
-            <minimum-size width="60" height="30"/>
-            <preferred-size width="60" height="30"/>
-            <maximum-size width="60" height="30"/>
-          </grid>
-        </constraints>
-        <properties>
-          <enabled value="false"/>
-          <font name="SansSerif" size="16"/>
-          <opaque value="true"/>
-          <text value="В"/>
+          <text value="Reset"/>
         </properties>
       </component>
       <component id="185ae" class="javax.swing.JButton" binding="eightMainRelayButton">
