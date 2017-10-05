@@ -3,11 +3,10 @@
 #include "Command.h"
 
 const uint16_t ZDRelays[8] = {26, 28, 30, 32, 40, 38, 36, 34};
-const uint16_t BIRTRelays[8] = {27, 29, 31, 33, 41, 39, 37, 35};
 const uint16_t KPins[8] = {46, 48, 50, 52, 53, 51, 49, 47};
 
-uint16_t id = 100;
-boolean pinsSetup = false;
+const uint16_t helpRelays[2] = {27, 29};
+
 Parser parser = Parser();
 
 void serialEvent() {
@@ -34,7 +33,7 @@ void runCommand(Command *command) {
     if (group == 0) {
       turnZDRelays(number, state);
     } else {
-      turnBIRTRelays(number, state);
+      turnHelpRelays(number, state);
     }
     break;
   }
@@ -48,10 +47,12 @@ void runCommand(Command *command) {
 void setup() {
   for (uint16_t i = 0; i < 8; i++) {
     pinMode(ZDRelays[i], OUTPUT);
-    pinMode(BIRTRelays[i], OUTPUT);
     pinMode(KPins[i], INPUT);
     digitalWrite(ZDRelays[i], HIGH);
-    digitalWrite(BIRTRelays[i], HIGH);
+  }
+  for (uint16_t i = 0; i < 2; i++) {
+    pinMode(helpRelays[i], OUTPUT);
+    digitalWrite(helpRelays[i], HIGH);
   }
   Serial.begin(9600);
 }
@@ -59,11 +60,13 @@ void setup() {
 void loop() {}
 
 void sendAllStates() {
+  for (uint16_t i = 0; i < 2; i++) {
+    boolean on = digitalRead(helpRelays[i]) == LOW;
+    sendToSerial(1, on, i);
+  }
   for (uint16_t i = 0; i < 8; i++) {
     boolean zdOn = digitalRead(ZDRelays[i]) == LOW;
-    boolean birtOn = digitalRead(BIRTRelays[i]) == LOW;
     sendToSerial(0, zdOn, i);
-    sendToSerial(1, birtOn, i);
   }
 }
 
@@ -71,28 +74,15 @@ void turnZDRelays(uint16_t relayID, boolean state) {
   if (digitalRead(KPins[relayID]) == HIGH) { return; }
 
   boolean on = state;
-  if (!on && digitalRead(BIRTRelays[relayID]) == LOW) {
-    on = true;
-  }
   Command* command = new Command(TURN);
   digitalWrite(ZDRelays[relayID], !on);
   sendToSerial(0, on, relayID);
   delete command;
 }
 
-void turnBIRTRelays(uint16_t relayID, boolean state) {
-  if (digitalRead(KPins[relayID]) == HIGH) { return; }
-
-  boolean on = state && digitalRead(ZDRelays[relayID]) == LOW && id == 100;
-  if (on) {
-    id = relayID;
-  } else {
-    if (relayID == id) {
-      id = 100;
-    }
-  }
-  digitalWrite(BIRTRelays[relayID], !on);
-  sendToSerial(1, on, relayID);
+void turnHelpRelays(uint16_t relayID, boolean state) {
+  digitalWrite(helpRelays[relayID], !state);
+  sendToSerial(1, state, relayID);
 }
 
 void sendToSerial(uint16_t group, boolean on, uint16_t relayID) {

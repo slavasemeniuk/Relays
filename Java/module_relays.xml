@@ -18,16 +18,12 @@
   <path id="relays.module.production.classpath">
     <path refid="${module.jdk.classpath.relays}"/>
     <pathelement location="${basedir}/src/modules/command"/>
-    <pathelement location="${basedir}/src/modules/connection"/>
-    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
     <path refid="library.jserialcomm-1.3.10.classpath"/>
   </path>
   
   <path id="relays.runtime.production.module.classpath">
     <pathelement location="${relays.output.dir}"/>
     <pathelement location="${basedir}/src/modules/command"/>
-    <pathelement location="${basedir}/src/modules/connection"/>
-    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
     <path refid="library.jserialcomm-1.3.10.classpath"/>
   </path>
   
@@ -35,8 +31,6 @@
     <path refid="${module.jdk.classpath.relays}"/>
     <pathelement location="${relays.output.dir}"/>
     <pathelement location="${basedir}/src/modules/command"/>
-    <pathelement location="${basedir}/src/modules/connection"/>
-    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
     <path refid="library.jserialcomm-1.3.10.classpath"/>
   </path>
   
@@ -44,8 +38,6 @@
     <pathelement location="${relays.testoutput.dir}"/>
     <pathelement location="${relays.output.dir}"/>
     <pathelement location="${basedir}/src/modules/command"/>
-    <pathelement location="${basedir}/src/modules/connection"/>
-    <pathelement location="${basedir}/lib/jSerialComm-1.3.10.jar"/>
     <path refid="library.jserialcomm-1.3.10.classpath"/>
   </path>
   
